@@ -1,0 +1,9 @@
+2010-05-03 nex <nex@autistici.org>
+
+* hgame.c: hgame management
+
+* util.c: useful functions
+
+* module.c: programs and devices handling
+
+* main.c: main file
