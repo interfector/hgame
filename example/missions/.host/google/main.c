@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include "hgame_prog.h"
+#include "../hgame_host.h"
 
 #define TRUE	1
 #define FALSE	0
 
 #define abs(x) ((x > 0) ? x : -x)
+
+#define GOOGLE_PASS "a0b+3*.2_#23fs^42d?754d(bs=3b);"
 
 char def_charset[] = "abcdefghijklmnopqrstuvwxyzABCDEGHIJKLMNOPQRSTUVZ0123456789[]!£$%&/()=?^+*#@.:,;-_\\|<>";
 
@@ -45,7 +47,7 @@ void increment(char *block, int len, char *charset, char *templ)
 
 	for(i = strlen(block)-1;i > -1;i--)
 	{
-		if(templ[i] == '@')
+		if(templ[i] == 0x1b)
 		{
 			if(inc[i] < strlen(charset)-1)
 			{
@@ -81,7 +83,7 @@ chunk(int start,char *charset, char *templ)
 
 	for(j = 0;j < start;j++)
 	{
-		if(templ[j] == '@')
+		if(templ[j] == 0x1b)
 		{
 			block[j] = charset[0];
 			inc[j] = 0;
@@ -93,7 +95,7 @@ chunk(int start,char *charset, char *templ)
 		increment(block,start,charset,templ);
 
 		for(j = 0;j < start;j++)
-			if(templ[j] != '@')
+			if(templ[j] != 0x1b)
 				block[j] = templ[j];
 		
 		for(s = 0;s < strlen(block);s++)
@@ -107,7 +109,7 @@ chunk(int start,char *charset, char *templ)
 
 		for(i = 0;i < strlen(pass);i++)
 			if(block[i] != pass[i])
-				templ[i] = '@';
+				templ[i] = 0x1b;
 			else
 				templ[i] = pass[i];
 
@@ -122,26 +124,45 @@ chunk(int start,char *charset, char *templ)
 	return 1;
 }
 
-HGAME_MAIN(ccrack)
+HGAME_HOST(host_main)
 {
 	int i;
 	TokenCtx* ctx = (TokenCtx*)arg;
 	char* pwd;
 	int len;
 
-	if(!ctx->args[1])
-		return 1;
+	char* user = malloc(10);
+	char* psw;
 
-	len = strlen(ctx->args[1]);
+	printf("User:");
+	scanf("%10s",user);
+	if(ctx->args[2] && !strcmp(ctx->args[2],"-crack"))
+	{
+		printf("Password cracking...\n");
+
+		len = strlen(GOOGLE_PASS);
 	
-	pwd = malloc(len + 1);
+		pwd = malloc(len + 1);
 
-	memset(pwd,'@',len);
+		memset(pwd,'@',len);
 
-	pass = malloc(len);
-	strcpy(pass,ctx->args[1]);
+		pass = malloc(len);
+		strcpy(pass,GOOGLE_PASS);
 
-	i = chunk(len,def_charset,pwd);
+		i = chunk(len,def_charset,pwd);
+		
+		psw = strdup(pass);
+
+		free(pass);
+	} else
+		psw = getpass("Password:");
+
+	if(!strcmp(user,"admin") && !strcmp(psw,GOOGLE_PASS))
+	{
+		/* root_shell(); */
+		printf("g0t root!\n");
+	} else if(!strcmp(user,"guest") && !strcmp(psw,"guest"))
+	{
+		printf("guest shell...\n");
+	}
 }
-
-HGAME_PROG("crack","0.0.1",ccrack);

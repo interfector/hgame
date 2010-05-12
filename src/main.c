@@ -21,12 +21,24 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
+#include <openssl/md5.h>
 #include <hgame.h>
 
 void
 sighandler(int sig)
 {
-	printf("\n<C-c> SIGINT:  Interrupt, type 'exit' to quit the program.\n");
+	switch(sig)
+	{
+		case SIGINT:
+			printf("\n<C-c> SIGINT:  Interrupt, type 'exit' to quit the program.\n");
+			break;
+		case SIGSEGV:
+			exit(1);
+			break;
+		default:
+			break;
+	}
 }
 
 int
@@ -38,7 +50,12 @@ main(int argc,char *argv[])
 	struct hgame_rc * rc = malloc(sizeof(struct hgame_rc));
 	char* home = getenv("USERNAME");
 
+	char * hash = malloc(16);
+
+	pthread_t thread;
+
 	signal(SIGINT,sighandler);
+	signal(SIGSEGV,sighandler);
 
 	rc_path = malloc(26 + strlen(home));
 	sprintf(rc_path,"/home/%s/.hgame/.hgamerc",home);
@@ -50,9 +67,13 @@ main(int argc,char *argv[])
 		printf("[%s] password: ",rc->user);
 		line = getpass("");
 
-		if(strcmp(line,rc->pass))
+		MD5((unsigned char*)line,strlen(line),(unsigned char*)hash);
+
+		if(strcmp(hash,rc->pass))
 			die("Incorrect password, try again.\n");
 	} else {
+		char* pass;
+
 		printf("W0W, it is your first access...Well, we start...\n");
 		printf("Your real name: ");
 		rc->name = malloc(20);
@@ -65,7 +86,11 @@ main(int argc,char *argv[])
 		printf("Username: ");
 		rc->user = malloc(10); 
 		i = scanf("%10s",rc->user);
-		rc->pass = getpass("Password:");
+		pass = getpass("Password:");
+
+		rc->pass = malloc(16);
+
+		MD5((unsigned char*)pass,strlen(pass),(unsigned char*)rc->pass);
 		
 		printf("OS name: ");
 		rc->os = malloc(20);
@@ -77,17 +102,24 @@ main(int argc,char *argv[])
 
 		rc->kernel = strdup(DEF_KERNEL);
 
-		fflush(stdin);
+		getchar();
 	}
 
+	hgame_main.connected = 
+	hgame_main.pc.net.conn = 
 	hgame_main.program_c =
-	hgame_main.device_c = 0;
+	hgame_main.device_c = 
+	hgame_main.host_c = 0;
 
 	setHgameResource(rc);
 
 	callbacks[ON_INIT](NULL);
 
 	load_programs();
+
+	pthread_create(&thread,NULL,(void* (*)(void*))callbacks[ON_NEWMAIL],NULL);
+
+	KnownHostparse();
 
 	while(1)
 	{

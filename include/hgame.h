@@ -28,10 +28,20 @@ struct hgame_data {
 
 struct hgame_host {
 	int   mode;
-	char* server;
+	char* host;
+	char* ip;
 	int   port;
 
-	struct hgame_data data;
+	struct hgame_data * data;
+};
+
+struct hgame_network {
+	char* essid;
+	char* localip;
+
+	int power;
+
+	int conn;
 };
 
 struct hgame_pc {
@@ -41,8 +51,12 @@ struct hgame_pc {
 	char* hostname;
 	char* kernel;
 
+	struct hgame_network net;
+
 	struct tm * date;
-	int    uptime;
+
+	struct tm * initd;
+	float    uptime;
 
 	int *load_average;
 };
@@ -54,6 +68,9 @@ typedef struct {
 	int   mode;
 
 	int connected;
+
+	struct hgame_host * known_hosts;
+	int    host_c;
 
 	struct hgame_pc pc;
 
@@ -106,6 +123,7 @@ typedef enum { ON_INIT,
 			ON_DEVEXIT,
 			ON_DEVIOCTL,
 			ON_PROGUSE, */
+			ON_NEWMAIL,
 			ON_DOWNLOAD,
 			ON_UPLOAD,
 			ON_CRACKING,
@@ -118,7 +136,10 @@ char*  getRcPath();
 struct hgame_rc* getResource(char*);
 void   rcSave(struct hgame_rc*,char*);
 char*  getline(char*,...);
-void setHgameResource(struct hgame_rc*);
+void   setHgameResource(struct hgame_rc*);
+void   KnownHostparse(void);
+void   clear();
+void   create_progress();
 
 #define xdie(x) do{ callbacks[ON_EXIT](NULL); perror(x); exit(1); }while(1)
 
@@ -132,6 +153,7 @@ int on_connopen(struct hgame_data*);
 int on_connref(struct hgame_data*);
 int on_hostnfound(struct hgame_data*);
 int on_fileopen(struct hgame_data*);
+int on_newmail(struct hgame_data*);
 int on_download(struct hgame_data*);
 int on_upload(struct hgame_data*);
 int on_cracking(struct hgame_data*);
@@ -146,6 +168,7 @@ static int (*callbacks[])(struct hgame_data*) = { on_init,
 						 on_devexit,
 						 on_devioctl, 
 						 on_proguse, */
+						 on_newmail,
 						 on_download,
 						 on_upload,
 						 on_cracking,
@@ -163,5 +186,9 @@ void TokenParse(TokenCtx*,char*);
 void LineParse(TokenCtx*);
 
 void load_programs(void);
+
+extern int inotify_init(void);
+extern int inotify_add_watch(int,const char*,int);
+extern int inotify_rm_watch(int,int);
 
 #endif/*_HGAME_*/

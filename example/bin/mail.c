@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <linux/inotify.h>
 #include "hgame_prog.h"
 
 HGAME_MAIN(mail)

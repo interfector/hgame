@@ -3,7 +3,7 @@
 VERSION = 0.0.1
 
 # includes and libs
-LIBS = -ldl 
+LIBS = -ldl -lpthread -lssl
 
 # flags
 CFLAGS = -Wall -O3 ${LIBS} -DVERSION=\"${VERSION}\" -I./include -fno-stack-protector
@@ -15,6 +15,9 @@ all:
 	gcc -o $(BIN) $(SRC) $(CFLAGS)
 
 clean:
+	rm -rf ~/.hgame/bin
+	rm -rf ~/.hgame/devices
+	rm -rf ~/.hgame/missions
 	rm -f $(BIN)
 
 install: all
@@ -25,6 +28,7 @@ install: all
 	mkdir -p ~/.hgame/devices
 	mkdir -p ~/.hgame/missions
 	cp -r example/bin/*.so ~/.hgame/bin
-	cp -r example/devices/* ~/.hgame/devices
-	cp -r example/missions/* ~/.hgame/missions
+	cp example/devices/mail ~/.hgame/devices
+	cp example/devices/hosts ~/.hgame/devices
+	cp -r example/missions ~/.hgame/
 	chown -R 1000:1000 ~/.hgame

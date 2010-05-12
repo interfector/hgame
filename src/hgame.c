@@ -19,7 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <linux/inotify.h>
 #include <hgame.h>
 
 int
@@ -48,7 +51,7 @@ on_connopen(struct hgame_data* data)
 	char *buf = malloc(256);
 	struct hgame_host * host = (struct hgame_host*)data;
 
-	snprintf(buf,256,"* Connecting to %s:%d in %s mode...\n",host->server,host->port,(!host->mode) ? "sending" : "receive" );
+	snprintf(buf,256,"* Connecting to %s:%d in %s mode...\n",(host->host) ? host->host : host->ip,host->port,(!host->mode) ? "sending" : "receive" );
 
 	data = malloc(sizeof(struct hgame_data));
 
@@ -90,6 +93,48 @@ on_fileopen(struct hgame_data* data)
 		printf("* Error executing editor: %s.\n",editor);
 
 	return 0;
+}
+
+int
+on_newmail(struct hgame_data* data)
+{
+	char buff[BUFSIZ];
+	int fd,ifd,wd;
+	time_t ltime;
+	struct tm * t;
+	char* home = getenv("USERNAME");
+	char* path = malloc(30 + strlen(home));
+
+	sprintf(path,"/home/%s/.hgame/devices/mail",home);
+
+	if ((fd = open(path, O_RDONLY)) < 0)
+		return 1;
+
+	if ((ifd = inotify_init()) < 0)
+		return 3;
+
+	wd = inotify_add_watch (ifd,path,IN_MODIFY);
+
+	lseek (fd,0,SEEK_END);
+
+     while(1)
+	{
+     	if(read(ifd,buff,BUFSIZ) > 0)
+		{
+	          ltime = time(NULL);
+			t = localtime(&ltime);
+
+			while (read(fd,buff,BUFSIZ) > 0)
+				printf ("\n* You received a new mail on %02d:%02d:%02d %02d/%02d/%04d\n\033[1A",t->tm_hour,
+						t->tm_min,
+						t->tm_sec,
+						t->tm_mday,
+						t->tm_mon,
+						t->tm_year + 1900);
+		}
+	}
+
+    	inotify_rm_watch (ifd,wd);
 }
 
 int
