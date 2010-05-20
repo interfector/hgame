@@ -275,12 +275,34 @@ ipgen()
 
 	srand(tv.tv_usec);
 
-	sprintf(ip,"%d.%d.%d.%d",(rand() % 256),
-						(rand() % 256),
-						(rand() % 256),
-						(rand() % 256));
+	sprintf(ip,"%d.%d.%d.%d",(rand() % 255) + 1,
+						(rand() % 255) + 1,
+						(rand() % 255) + 1,
+						(rand() % 255) + 1);
 																				
 	return ip;
+}
+
+char*
+macgen()
+{
+	char *mac = malloc(18);
+	struct timeval tv;
+
+	if(gettimeofday(&tv,NULL) < 0)
+		return NULL;
+
+	srand(tv.tv_usec);
+
+	sprintf(mac,"%02x:%02x:%02x:%02x:%02x:%02x",
+							    (rand() % 0xff) + 1,
+							    (rand() % 0xff) + 1,
+							    (rand() % 0xff) + 1,
+							    (rand() % 0xff) + 1,
+							    (rand() % 0xff) + 1,
+							    (rand() % 0xff) + 1);
+
+	return mac;
 }
 
 void
@@ -629,6 +651,7 @@ LineParse(TokenCtx* ctx)
 			}
 
 			hgame_main.pc.net.localip = ipgen();
+			hgame_main.pc.net.mac = macgen();
 
 			hgame_main.pc.net.essid = malloc(15);
 			sprintf(hgame_main.pc.net.essid,"nethack.%03X",(rand() % 256));
@@ -651,7 +674,9 @@ LineParse(TokenCtx* ctx)
 			return;
 		}
 
-		printf("ESSID: %s.\nPower: %d%%.\nIP: %s.\n",hgame_main.pc.net.essid,
+		printf("ESSID: %s.\nMAC Address: %s.\nPower: %d%%.\nIP: %s.\n",
+											hgame_main.pc.net.essid,
+											hgame_main.pc.net.mac,
 											hgame_main.pc.net.power,
 											hgame_main.pc.net.localip);
 	} else if (!strcmp(ctx->args[0],"clear"))

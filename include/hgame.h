@@ -38,6 +38,7 @@ struct hgame_host {
 struct hgame_network {
 	char* essid;
 	char* localip;
+	char* mac;
 
 	int power;
 

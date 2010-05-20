@@ -15,10 +15,11 @@ GenIP(Hgame* main)
 	sleep(1);
 
 	sprintf(main->pc.net.localip,
-			"%d.%d.%d.%d",(rand() % 256),
-					(rand() % 256),
-					(rand() % 256),
-					(rand() % 256));
+			"%d.%d.%d.%d",
+					(rand() % 255) + 1,
+					(rand() % 255) + 1,
+					(rand() % 255) + 1,
+					(rand() % 255) + 1);
 
 	printf("New IP: %s\n",main->pc.net.localip);
 }
