@@ -40,6 +40,9 @@ on_init(struct hgame_data* data)
 			hgame_main.pc.date->tm_min,
 			hgame_main.pc.date->tm_sec);
 
+	time_t t = time(NULL);
+	hgame_main.pc.initd = localtime(&t);
+
 //	data->lenght  = strlen(data->content);
 
 	return 0;

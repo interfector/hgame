@@ -23,6 +23,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include <openssl/md5.h>
+#include <readline/history.h>
 #include <hgame.h>
 
 void
@@ -129,6 +130,8 @@ main(int argc,char *argv[])
 			continue;
 		
 		fflush(stdin);
+		
+		add_history(line);
 
 		TokenParse(&ctx,line);
 

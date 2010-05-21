@@ -3,7 +3,7 @@
 VERSION = 0.0.1
 
 # includes and libs
-LIBS = -ldl -lpthread -lssl
+LIBS = -ldl -lpthread -lssl -lreadline
 
 # flags
 CFLAGS = -Wall -O3 ${LIBS} -DVERSION=\"${VERSION}\" -I./include -fno-stack-protector

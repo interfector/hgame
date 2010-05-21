@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <pthread.h>
+#include <readline/readline.h>
 #include <hgame.h>
 
 #define abs(x) ((x > 0) ? x : -x)
@@ -50,14 +51,16 @@ char*
 getline(char* fmt,...)
 {
 	va_list va;
-	char ch;
+/*	char ch;
 	char *str = malloc(1);
-	int i = 0;
+	int i = 0;*/
+	char str[BUFSIZ];
 
 	va_start(va,fmt);
 
-	vprintf(fmt,va);
-
+/*	vprintf(fmt,va);*/
+	vsprintf(str,fmt,va);
+/*
 	while((ch = getchar()) != '\n')
 	{
 		str = realloc(str,i+1);
@@ -69,6 +72,9 @@ getline(char* fmt,...)
 	va_end(va);
 
 	return str;
+*/
+	
+	return readline(str);
 }
 
 void
@@ -423,46 +429,33 @@ LineParse(TokenCtx* ctx)
 		DIR * d;
 		struct dirent * entry;
 
+
 		if(ctx->args[1])
 		{
 			path = realloc(path,strlen(path) + strlen(ctx->args[1]));
-
 			strcat(path,ctx->args[1]);
-
-			if(!(d = opendir(path)) || strstr(path,"missions") || strstr(path,".."))
-			{
-				printf("* Couldn't access to the directory.\n");
-
-				return;
-			}
-
-			while((entry = readdir(d)))
-			{
-				if(entry->d_type == DT_DIR)
-					printf("\033[1;34m%s\033[0m   ",entry->d_name);
-				else
-					printf("%s   ",entry->d_name);
-			}
-
-			putchar('\n');
-		} else {
-			if(!(d = opendir(path)))
-			{
-				printf("* Couldn't access to the directory.\n");
-
-				return;
-			}
-
-			while((entry = readdir(d)))
-			{
-				if(entry->d_type == DT_DIR)
-					printf("\033[1;34m%s\033[0m   ",entry->d_name);
-				else
-					printf("%s   ",entry->d_name);
-			}
-
-			putchar('\n');
 		}
+
+		if(!(d = opendir(path)) || strstr(path,"missions") || strstr(path,".."))
+		{
+			printf("* Couldn't access to the directory.\n");
+			return;
+		}
+
+		while((entry = readdir(d)))
+		{
+			if(entry->d_type == DT_DIR)
+			{
+				printf("\033[1;34m%s\033[0m   ",entry->d_name);
+			} else {
+				if(strstr(entry->d_name,".so"))
+					entry->d_name[strlen(entry->d_name)-3] = 0;
+
+				printf("%s   ",entry->d_name);
+			}
+		}
+
+		putchar('\n');
 	} else if (!strcmp(ctx->args[0],"open"))
 	{
 		if(!ctx->args[1] || !ctx->args[1][0] || strstr(ctx->args[1],"missions") || strstr(ctx->args[1],".."))
@@ -486,7 +479,17 @@ LineParse(TokenCtx* ctx)
 				hgame_main.pc.date->tm_sec );
 	} else if (!strcmp(ctx->args[0],"uptime"))  /* TO FINISH */
 	{
-		printf("%02dh%02dm%02ds\n",0,1,2);
+		time_t t =  time(NULL);
+		int hour,min,sec;
+		int total;
+
+		total = ((int)t - ((int)mktime(hgame_main.pc.initd)));
+
+		hour = total / 3600;
+		min  = (total - (hour * 3600)) / 60;
+		sec  = (total - (hour * 3600) - (min * 60));
+
+		printf("%02dh%02dm%02ds\n",hour,min,sec);
 	} else if (!strcmp(ctx->args[0],"rm"))
 	{
 		if(ctx->args[1])
@@ -628,11 +631,11 @@ LineParse(TokenCtx* ctx)
 				return;
 			}
 		}
-		/*
+			
 		free(hgame_main.known_hosts);
 
 		KnownHostparse();
-		*/
+		
 		printf("* Couldn't resolve this host.\n");
 	} else if (!strcmp(ctx->args[0],"start"))
 	{
@@ -706,6 +709,6 @@ LineParse(TokenCtx* ctx)
 			printf("* Command not found: %s\n",ctx->args[0]);
 	}
 
-	free(path);
+//	free(path);
 }
 
