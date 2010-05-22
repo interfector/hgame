@@ -464,19 +464,33 @@ LineParse(TokenCtx* ctx)
 			callbacks[ON_FILEOPEN]((struct hgame_data*)ctx->args[1]);
 	} else if (!strcmp(ctx->args[0],"arch"))
 	{
+		/*
 		time_t ts = time(NULL);
 		hgame_main.pc.date = localtime(&ts);
+		*/
 
-		printf("%s %s %s %02d/%02d/%04d %02d:%02d:%02d\n",
+		printf("%s %s %s\n"/* %02d/%02d/%04d %02d:%02d:%02d\n",*/,
 				hgame_main.pc.os,
 				hgame_main.pc.hostname,
-				hgame_main.pc.kernel,
+				hgame_main.pc.kernel/*,
 				hgame_main.pc.date->tm_mday,
 				hgame_main.pc.date->tm_mon,
 				hgame_main.pc.date->tm_year + 1900,
 				hgame_main.pc.date->tm_hour,
 				hgame_main.pc.date->tm_min,
-				hgame_main.pc.date->tm_sec );
+				hgame_main.pc.date->tm_sec */);
+	} else if (!strcmp(ctx->args[0],"date"))
+	{
+		time_t s = time(NULL);
+		struct tm * l = localtime(&s);
+
+		printf("%02d/%02d/%04d %02d:%02d:%02d\n",
+				l->tm_mday,
+				l->tm_mon,
+				l->tm_year + 1900,
+				l->tm_hour,
+				l->tm_min,
+				l->tm_sec);
 	} else if (!strcmp(ctx->args[0],"uptime"))  /* TO FINISH */
 	{
 		time_t t =  time(NULL);
@@ -691,12 +705,14 @@ LineParse(TokenCtx* ctx)
 			  "ls - List all the files in the current directory.\n"
 			  "open - Open a file with the default editor.\n"
 			  "arch - Display architecture information.\n"
+			  "date - Display time information.\n"
 			  "rm - Remove a file.\n"
 			  "connect - Connect to a specified host.\n"
 			  "resolve - Resolve a specified host.\n"
 			  "start - Starts a service as: network, missions.\n"
 			  "network - Display network information.\n"
-			  "clear - Clear the terminal\n");
+			  "clear - Clear the terminal.\n"
+			  "uptime - Display the time until the computer is up.\n");
 	} else {
 		int r = -1;
 		int i;
