@@ -192,4 +192,10 @@ extern int inotify_init(void);
 extern int inotify_add_watch(int,const char*,int);
 extern int inotify_rm_watch(int,int);
 
+#define VERSION_TEXT \
+		  "hgame-"VERSION" Copyright (C) 2010 nex (... stoke, darkness)\n" \
+		  "This program comes with ABSOLUTELY NO WARRANTY.\n" \
+		  "This is free software, and you are welcome to redistribute it\n" \
+	       "under certain conditions.\n"
+
 #endif/*_HGAME_*/

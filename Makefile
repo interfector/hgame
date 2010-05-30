@@ -1,6 +1,6 @@
 # hgame
 
-VERSION = 0.0.1
+VERSION = 0.0.1-pre-alpha
 
 # includes and libs
 LIBS = -ldl -lpthread -lssl -lreadline
@@ -21,7 +21,7 @@ clean:
 	rm -f $(BIN)
 
 install: all
-	cp -f $(BIN) /usr/local/bin/
+	cp -f $(BIN) /usr/games/
 	mkdir -p ~/.hgame
 	mkdir -p ~/.hgame/bin
 	mkdir -p ~/.hgame/files

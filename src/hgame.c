@@ -85,10 +85,11 @@ on_hostnfound(struct hgame_data* data)
 int
 on_fileopen(struct hgame_data* data)
 {
+	char* home = getenv("HOME");
 	char* editor = (getenv("EDITOR") ? getenv("EDITOR") : "vim" );
 	char* path = malloc(11 + strlen(editor) + strlen((char*)data));
 
-	sprintf(path,"%s ~/.hgame/%s",editor,(char*)data);
+	sprintf(path,"%s %s/.hgame/%s",editor,home,(char*)data);
 
 	printf("[job] %s\n",path);
 
@@ -105,10 +106,10 @@ on_newmail(struct hgame_data* data)
 	int fd,ifd,wd;
 	time_t ltime;
 	struct tm * t;
-	char* home = getenv("USERNAME");
+	char* home = getenv("HOME");
 	char* path = malloc(30 + strlen(home));
 
-	sprintf(path,"/home/%s/.hgame/devices/mail",home);
+	sprintf(path,"%s/.hgame/devices/mail",home);
 
 	if ((fd = open(path, O_RDONLY)) < 0)
 		return 1;

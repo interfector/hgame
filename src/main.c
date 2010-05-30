@@ -49,7 +49,7 @@ main(int argc,char *argv[])
 	char* line;
 	TokenCtx ctx;
 	struct hgame_rc * rc = malloc(sizeof(struct hgame_rc));
-	char* home = getenv("USERNAME");
+	char* home = getenv("HOME");
 
 	char * hash = malloc(16);
 
@@ -58,8 +58,14 @@ main(int argc,char *argv[])
 	signal(SIGINT,sighandler);
 	signal(SIGSEGV,sighandler);
 
+	if(argv[1] && (!strcmp(argv[1],"-v") || !strcmp(argv[1],"-V") || !strcmp(argv[1],"--version")))
+	{
+		printf("%s",VERSION_TEXT);
+		return 0;
+	}
+
 	rc_path = malloc(26 + strlen(home));
-	sprintf(rc_path,"/home/%s/.hgame/.hgamerc",home);
+	sprintf(rc_path,"%s/.hgame/.hgamerc",home);
 
 	if(!access(rc_path,F_OK))
 	{
@@ -102,6 +108,8 @@ main(int argc,char *argv[])
 		i = scanf("%20s",rc->hostname);
 
 		rc->kernel = strdup(DEF_KERNEL);
+
+		rcSave(rc,rc_path);
 
 		getchar();
 	}

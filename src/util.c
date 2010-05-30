@@ -314,7 +314,7 @@ macgen()
 void
 KnownHostparse()
 {
-	char* home = getenv("USERNAME");
+	char* home = getenv("HOME");
 	char* path = malloc(30 + strlen(home));
 	FILE *fp;
 	int port = 0;
@@ -323,7 +323,7 @@ KnownHostparse()
 
 	hgame_main.known_hosts = malloc(sizeof(struct hgame_host));
 
-	sprintf(path,"/home/%s/.hgame/devices/hosts",home);
+	sprintf(path,"%s/.hgame/devices/hosts",home);
 
 	if(!(fp = fopen(path,"r")))
 	{
@@ -419,10 +419,10 @@ TokenParse(TokenCtx *ctx,char * cmd)
 void
 LineParse(TokenCtx* ctx)
 {
-	char* home = getenv("USERNAME");
+	char* home = getenv("HOME");
 	char* path = malloc(15 + strlen(home)); 
 
-	sprintf(path,"/home/%s/.hgame/",home);
+	sprintf(path,"%s/.hgame/",home);
 
 	if(!strcmp(ctx->args[0],"ls"))
 	{
@@ -525,7 +525,7 @@ LineParse(TokenCtx* ctx)
 		}
 	} else if (!strcmp(ctx->args[0],"connect"))
 	{
-		char* home = getenv("USERNAME");
+		char* home = getenv("HOME");
 		char* path;
 		char* ptr;
 		FILE *dl;
@@ -562,7 +562,7 @@ LineParse(TokenCtx* ctx)
 		else
 			ptr = strtok(ctx->args[1],".");
 
-		sprintf(path,"/home/%s/.hgame/missions/.host/%s/main.so",home,ptr);
+		sprintf(path,"%s/.hgame/missions/.host/%s/main.so",home,ptr);
 
 		dl = dlopen(path, RTLD_GLOBAL | RTLD_NOW);
 
@@ -581,7 +581,7 @@ LineParse(TokenCtx* ctx)
 		ss_start(ctx);
 	} else if (!strcmp(ctx->args[0],"resolve"))
 	{
-		char* home = getenv("USERNAME");
+		char* home = getenv("HOME");
 		char* path;
 		FILE * fp;
 		char* ptr;
@@ -601,7 +601,7 @@ LineParse(TokenCtx* ctx)
 
 		path = malloc(30 + strlen(home));
 
-		sprintf(path,"/home/%s/.hgame/missions/.hosts",home);
+		sprintf(path,"%s/.hgame/missions/.hosts",home);
 
 		if(!(fp = fopen(path,"r")))
 		{
@@ -625,7 +625,7 @@ LineParse(TokenCtx* ctx)
 
 				fclose(fp);
 
-				sprintf(path,"/home/%s/.hgame/devices/hosts",home);
+				sprintf(path,"%s/.hgame/devices/hosts",home);
 
 				if(!(fp = fopen(path,"a")))
 				{
